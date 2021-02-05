@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="{{ url_for('static', filename='stats.css') }}">
+<h1>Counter movement stats</h1>
+<table>
+         <tr>
+            <th>Athlete</th>
+            <th>Peak pos vel</th>
+            <th>T to peak pos vel</th>
+            <th>Peak neg vel</th>
+            <th>Peak pos acc</th>
+            <th>Avg pos 100ms vel</th>
+            <th>Avg pos 100ms acc</th>
+            <th>Peak pos 100ms vel</th>
+            <th>Peak pos 100ms acc</th>
+        </tr>
+    {% for athlete, dict_stats in dict_athletes.items() %}
+        <tr>
+            <td>{{ athlete }}</td>
+            <td>{{ dict_stats["v_peak_prop"] |round(4) }}</td>
+            <td>{{ dict_stats["t_to_v_peak_prop"] |round(4) }}</td>
+            <td>{{ dict_stats["v_peak_neg"] |round(4) }}</td>
+            <td>{{ dict_stats["a_peak_pos"] |round(4) }}</td>
+            <td>{{ dict_stats["v_avg_100_prop"] |round(4) }}</td>
+            <td>{{ dict_stats["a_avg_100_prop"] |round(4) }}</td>
+            <td>{{ dict_stats["v_peak_100_prop"] |round(4) }}</td>
+            <td>{{ dict_stats["a_peak_100_prop"] |round(4) }}</td>
+        </tr>
+    {% endfor %}
+
+</table>
