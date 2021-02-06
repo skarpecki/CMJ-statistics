@@ -4,11 +4,14 @@ import os
 
 from .csv_parser import check_extension, parse_cmj_csv_name, sort_list
 import app.src.cmj_stats as cmj_stats
+from app.src.auth_bp import require_auth
+
 
 bp = Blueprint('upload', __name__, url_prefix='/upload')
 
 
 @bp.route("/", methods=('GET', 'POST'))
+@require_auth
 def upload_files():
     if request.method == 'POST':
         velocity_files = request.files.getlist("velocity[]")
@@ -25,7 +28,7 @@ def upload_files():
                 file.filename = secure_filename(file.filename)
                 file.filename = parse_cmj_csv_name(file.filename)
             else:
-                redirect(request.url)
+                return redirect(request.url)
         for file in velocity_files:
             if file and check_extension(file.filename):
                 file.filename = secure_filename(file.filename)
@@ -45,19 +48,19 @@ def upload_files():
 
 
 @bp.route("/stats")
+@require_auth
 def stats():
     filenames = request.args.getlist("filenames")
     dict_athletes = {}
     for filename in list(filenames):
         cmj_vel_attr = cmj_stats.CMJAttribute(r"{}\velocity\{}".format(current_app.config['UPLOAD_FOLDER'], filename),
-                                          {"time": "Time (s)", "velocity": "Velocity (M/s)"})
+                                              {"time": "Time (s)", "velocity": "Velocity (M/s)"})
         cmj_force_attr = cmj_stats.CMJAttribute(r"{}\force\{}".format(current_app.config['UPLOAD_FOLDER'], filename),
-                                            {"time": "Time (s)", "left": "Left (N)", "right": "Right (N)",
-                                             "combined": "Combined (N)"})
+                                                {"time": "Time (s)", "left": "Left (N)", "right": "Right (N)",
+                                                 "combined": "Combined (N)"})
         cmj = cmj_stats.CMJForceVelStats(cmj_vel_attr, cmj_force_attr, "Time (s)")
         dict_cmj = cmj.get_cmj_stats()
         dict_athletes[filename.split('.')[0]] = dict_cmj
         os.remove(r"{}\velocity\{}".format(current_app.config['UPLOAD_FOLDER'], filename))
         os.remove(r"{}\force\{}".format(current_app.config['UPLOAD_FOLDER'], filename))
     return render_template("show_stats.html", dict_athletes=dict_athletes)
-

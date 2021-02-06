@@ -1,5 +1,7 @@
 from flask import (Blueprint, current_app, request,
-                   session, flash, url_for, redirect, render_template)
+                   session, flash, url_for, redirect, render_template,
+                   g)
+from functools import wraps
 
 bp = Blueprint('auth', __name__, url_prefix="/")
 
@@ -10,6 +12,16 @@ def check_credentials(app, username, password):
     elif password != app.config['PASSWORD']:
         return False
     return True
+
+
+def require_auth(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if g.user is not None:
+            return func(*args, **kwargs)
+        else:
+            return redirect(url_for('auth.login'))
+    return wrapper
 
 
 @bp.route("/", methods=['GET', 'POST'])
@@ -32,4 +44,15 @@ def login():
         except ValueError:
             print("value error")
             return render_template('login.html')
-        return render_template('login.html')
+    return render_template('login.html')
+
+
+@bp.before_app_request
+def load_user():
+    username = session.get("username")
+    if username is None:
+        g.user = None
+    else:
+        g.user = username
+
+
