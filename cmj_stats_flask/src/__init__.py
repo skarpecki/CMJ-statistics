@@ -1,8 +1,8 @@
 import os
 from flask import Flask, request, flash, redirect, url_for, send_from_directory, render_template
 # from werkzeug.utils import secure_filename
-import app.src.stats_bp
-import app.src.auth_bp
+import cmj_stats_flask.src.stats_bp
+import cmj_stats_flask.src.auth_bp
 
 def check_extension(filename):
     return filename.rsplit('.', 1)[1].lower() == "csv"
@@ -11,17 +11,12 @@ def check_extension(filename):
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     upload_folder = r"D:\DevProjects\PythonProjects\CMJ-statistics\data\upload"
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        UPLOAD_FOLDER=upload_folder,
-        USERNAME='dev',
-        PASSWORD='dev'
-    )
-    if test_config is None:
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        app.config.from_mapping(test_config)
-
+    app.config.from_object('cmj_stats_flask.default_settings.DevelopmentConfig')
+    if "CMJ_SETTINGS" in os.environ:
+        app.config.from_envvar('CMJ_SETTINGS')
+    os.makedirs(app.config.get('UPLOAD_FOLDER'), exist_ok=True)
+    os.makedirs(r"{}\{}".format(app.config.get('UPLOAD_FOLDER'), "velocity"), exist_ok=True)
+    os.makedirs(r"{}\{}".format(app.config.get('UPLOAD_FOLDER'), "force"), exist_ok=True)
     try:
         os.makedirs(app.instance_path)
     except OSError:
@@ -31,4 +26,3 @@ def create_app(test_config=None):
     app.register_blueprint(auth_bp.bp)
 
     return app
-

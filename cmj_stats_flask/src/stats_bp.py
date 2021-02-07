@@ -3,8 +3,8 @@ from werkzeug.utils import secure_filename
 import os
 
 from .csv_parser import check_extension, parse_cmj_csv_name, sort_list
-import app.src.cmj_stats as cmj_stats
-from app.src.auth_bp import require_auth
+import cmj_stats_flask.src.cmj_stats as cmj_stats
+from cmj_stats_flask.src.auth_bp import require_auth
 
 
 bp = Blueprint('upload', __name__, url_prefix='/upload')
