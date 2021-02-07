@@ -30,7 +30,6 @@ def login():
         try:
             username = request.form['username']
             password = request.form['password']
-            print(check_credentials(current_app, username, password))
             if check_credentials(current_app,
                                  request.form['username'],
                                  request.form['password']):

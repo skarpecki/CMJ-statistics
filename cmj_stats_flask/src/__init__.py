@@ -10,10 +10,10 @@ def check_extension(filename):
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
-    upload_folder = r"D:\DevProjects\PythonProjects\CMJ-statistics\data\upload"
     app.config.from_object('cmj_stats_flask.default_settings.DevelopmentConfig')
     if "CMJ_SETTINGS" in os.environ:
         app.config.from_envvar('CMJ_SETTINGS')
+        print("Settings from path loaded")
     os.makedirs(app.config.get('UPLOAD_FOLDER'), exist_ok=True)
     os.makedirs(r"{}\{}".format(app.config.get('UPLOAD_FOLDER'), "velocity"), exist_ok=True)
     os.makedirs(r"{}\{}".format(app.config.get('UPLOAD_FOLDER'), "force"), exist_ok=True)
