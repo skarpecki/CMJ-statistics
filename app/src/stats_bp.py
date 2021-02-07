@@ -52,15 +52,20 @@ def upload_files():
 def stats():
     filenames = request.args.getlist("filenames")
     dict_athletes = {}
-    for filename in list(filenames):
-        cmj_vel_attr = cmj_stats.CMJAttribute(r"{}\velocity\{}".format(current_app.config['UPLOAD_FOLDER'], filename),
-                                              {"time": "Time (s)", "velocity": "Velocity (M/s)"})
-        cmj_force_attr = cmj_stats.CMJAttribute(r"{}\force\{}".format(current_app.config['UPLOAD_FOLDER'], filename),
-                                                {"time": "Time (s)", "left": "Left (N)", "right": "Right (N)",
-                                                 "combined": "Combined (N)"})
-        cmj = cmj_stats.CMJForceVelStats(cmj_vel_attr, cmj_force_attr, "Time (s)")
-        dict_cmj = cmj.get_cmj_stats()
-        dict_athletes[filename.split('.')[0]] = dict_cmj
-        os.remove(r"{}\velocity\{}".format(current_app.config['UPLOAD_FOLDER'], filename))
-        os.remove(r"{}\force\{}".format(current_app.config['UPLOAD_FOLDER'], filename))
+    try:
+        for filename in list(filenames):
+            cmj_vel_attr = cmj_stats.CMJAttribute(r"{}\velocity\{}".format(current_app.config['UPLOAD_FOLDER'], filename),
+                                                  {"time": "Time (s)", "velocity": "Velocity (M/s)"})
+            cmj_force_attr = cmj_stats.CMJAttribute(r"{}\force\{}".format(current_app.config['UPLOAD_FOLDER'], filename),
+                                                    {"time": "Time (s)", "left": "Left (N)", "right": "Right (N)",
+                                                     "combined": "Combined (N)"})
+            cmj = cmj_stats.CMJForceVelStats(cmj_vel_attr, cmj_force_attr, "Time (s)")
+            dict_cmj = cmj.get_cmj_stats()
+            dict_athletes[filename.split('.')[0]] = dict_cmj
+    except ValueError:
+        return redirect(url_for('upload.upload_files'))
+    finally:
+        for filename in list(filenames):
+            os.remove(r"{}\velocity\{}".format(current_app.config['UPLOAD_FOLDER'], filename))
+            os.remove(r"{}\force\{}".format(current_app.config['UPLOAD_FOLDER'], filename))
     return render_template("show_stats.html", dict_athletes=dict_athletes)
