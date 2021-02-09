@@ -37,11 +37,7 @@ def login():
             else:
                 raise ValueError("Incorrect credentials")
             return redirect(url_for('upload.upload_files'))
-        except KeyError:
-            print("key error")
-            flash("No username or password provided")
         except ValueError:
-            print("value error")
             return render_template('login.html')
     return render_template('login.html')
 

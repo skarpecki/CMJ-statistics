@@ -1,8 +1,7 @@
 import os
-from flask import Flask, request, flash, redirect, url_for, send_from_directory, render_template
+from flask import Flask
 # from werkzeug.utils import secure_filename
-import cmj_stats_flask.src.stats_bp
-import cmj_stats_flask.src.auth_bp
+import cmj_stats_flask.src.bleuprints.auth_bp
 
 def check_extension(filename):
     return filename.rsplit('.', 1)[1].lower() == "csv"
@@ -24,5 +23,12 @@ def create_app(test_config=None):
 
     app.register_blueprint(stats_bp.bp)
     app.register_blueprint(auth_bp.bp)
+
+    @app.errorhandler(500)
+    def server_error(e):
+        return """
+        An internal error occurred: <pre>{}</pre>
+        See logs for full stacktrace.
+        """.format(e), 500
 
     return app

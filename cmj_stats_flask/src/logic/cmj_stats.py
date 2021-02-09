@@ -290,7 +290,7 @@ class CMJForceVelStats:
 
 
 if __name__ == "__main__":
-    path = r"D:\DevProjects\PythonProjects\CMJ-statistics\data"
+    path = r"/data"
     cmj_vel_attr = CMJAttribute(rf"{path}\adam\velocity.csv",
                                 {"time": "Time (s)", "velocity": "Velocity (M/s)"})
     cmj_force_attr = CMJAttribute(rf"{path}\adam\force.csv",
