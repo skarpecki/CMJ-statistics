@@ -2,9 +2,9 @@ from flask import Blueprint, current_app, request, redirect, url_for, render_tem
 from werkzeug.utils import secure_filename
 import os
 
-from cmj_stats_flask.src.logic.csv_parser import check_extension, parse_cmj_csv_name, sort_list
-import cmj_stats_flask.src.logic.cmj_stats as cmj_stats
-from cmj_stats_flask.src.bleuprints.auth_bp import require_auth
+from cmj_stats_flask.src.service.csv_parser import check_extension, parse_cmj_csv_name, sort_list
+import cmj_stats_flask.src.service.cmj_stats as cmj_stats
+from cmj_stats_flask.src.controllers.auth_bp import require_auth
 
 
 bp = Blueprint('upload', __name__, url_prefix='/upload')

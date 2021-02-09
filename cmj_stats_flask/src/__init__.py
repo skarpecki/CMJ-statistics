@@ -1,7 +1,8 @@
 import os
 from flask import Flask
 # from werkzeug.utils import secure_filename
-import cmj_stats_flask.src.bleuprints.auth_bp
+from cmj_stats_flask.src.controllers import auth_bp
+from cmj_stats_flask.src.controllers import stats_bp
 
 def check_extension(filename):
     return filename.rsplit('.', 1)[1].lower() == "csv"
