@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='login-page.css') }}">
-
 </head>
 
 
@@ -18,8 +17,8 @@
             {% endif %}
         </div>
      <form id="login-form" method="post">
-        <input type="text" name="username" id="username-field" class="login-form-field" placeholder="Username" required>
-        <input type="password" name="password" id="password-field" class="login-form-field" placeholder="Password" required>
+         <input type="text" id="username-field" name="username" class="login-form-field" placeholder="Username" required>
+         <input type="password" id="password-field" name="password"  class="login-form-field" placeholder="Password" required>
          <input type="submit" value="Login" id="login-form-submit">
       </form>
     </main>

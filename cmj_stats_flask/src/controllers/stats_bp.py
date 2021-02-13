@@ -44,7 +44,7 @@ def upload_files():
         for file in velocity_files:
             file.save(os.path.join(current_app.config['UPLOAD_FOLDER'] + r"\velocity", file.filename))
         return redirect(url_for('upload.stats', filenames=sort_list(filenames)))
-    return render_template("upload.html")
+    return render_template("upload-page.html")
 
 
 @bp.route("/stats")

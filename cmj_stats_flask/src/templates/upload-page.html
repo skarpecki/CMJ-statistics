@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Upload files</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='upload-page.css') }}">
+</head>
+
+<body>
+    <main id="main-holder">
+        <h1 id="upload-header">Force and velocity files upload</h1>
+        <form id="file-upload-form" method=post enctype=multipart/form-data>
+
+            <div id="upload-files-row">
+                <div class="upload-files-column">
+                    <label for="velocity-files" class="upload-files-label">Velocity</label>
+                    <input type="file" id="velocity-files" name="velocity[]" class="upload-files-button" placeholder="Velocity files" multiple><br><br>
+                </div>
+                <div class="upload-files-column"></div>
+                <div class="upload-files-column">
+                    <label for="force-files" class="upload-files-label">Force</label>
+                    <input type="file" id="force-files" name="force[]" class="upload-files-button" placeholder="Force Files" multiple ><br><br><br>
+                </div>
+            </div>
+            <div id="submit-files-row">
+                <input type=submit value=Upload id="submit-files-button">
+            </div>
+
+        </form>
+    </main>
+</body>
+
