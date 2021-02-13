@@ -26,20 +26,18 @@ def require_auth(func):
 
 @bp.route("/", methods=['GET', 'POST'])
 def login():
+    error = None
     if request.method == "POST":
-        try:
-            username = request.form['username']
-            password = request.form['password']
-            if check_credentials(current_app,
-                                 request.form['username'],
-                                 request.form['password']):
-                session['username'] = request.form['username']
-            else:
-                raise ValueError("Incorrect credentials")
+        username = request.form['username']
+        password = request.form['password']
+        if check_credentials(current_app,
+                             request.form['username'],
+                             request.form['password']):
+            session['username'] = request.form['username']
             return redirect(url_for('upload.upload_files'))
-        except ValueError:
-            return render_template('login.html')
-    return render_template('login.html')
+        else:
+            error = "Invalid username\nor password"
+    return render_template('login-page.html', error=error)
 
 
 @bp.before_app_request

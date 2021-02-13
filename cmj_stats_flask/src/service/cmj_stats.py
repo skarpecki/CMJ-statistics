@@ -140,7 +140,6 @@ class VelocityCMJAttribute(CMJAttribute):
 class CMJForceVelStats:
     def __init__(self, vel_attr: CMJAttribute, force_attr: CMJAttribute, join_on: str, **kwargs):
         """
-
         :param type_csv_path: dictionary containing file type (velocity, force etc.) as key and path to file as value
         :param join_on: column on which joining should be performed between files
         :param kwargs:
