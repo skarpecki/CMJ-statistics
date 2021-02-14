@@ -7,8 +7,8 @@ App to calculate and present some parameters calculated from CMJ statistics obta
 
 2. Upload files page
 
-![upload]https://github.com/skarpecki/CMJ-statistics/blob/master/blob/upload.PNG
+![upload](https://github.com/skarpecki/CMJ-statistics/blob/master/blob/upload.PNG)
 
 3. Stats table:
 
-![stats]https://github.com/skarpecki/CMJ-statistics/blob/master/blob/stats-table.PNG
+![stats](https://github.com/skarpecki/CMJ-statistics/blob/master/blob/stats-table.PNG)
