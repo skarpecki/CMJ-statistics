@@ -1,6 +1,9 @@
 import pandas as pd
 from csv import reader
 from functools import partial, reduce
+from itertools import tee
+import copy
+import shutil
 
 
 class CMJAttribute:
@@ -9,35 +12,40 @@ class CMJAttribute:
     attribute/characteristic of counter movement, for
     example it would be velocity or force
     """
-    def __init__(self, csv_path: str, headers: dict):
+
+    def __init__(self, csv_file: 'file', headers: dict):
         """
         :param csv_path: path to csv file
         :param headers: dictionary with key as attribute (time, velocity, left, combined etc.) and col name as value
         """
-        self.csv_path = csv_path
+        self.csv_file = csv_file
         self.headers = headers
-        self._verify_csv_header()
+        # self._verify_csv_header(csv_file)
+        self._df = self.create_df()
 
-    def _verify_csv_header(self):
+    def _verify_csv_header(self, csv_file):
         """
         Verifies if csv file header contain
         all the columns from the arg columns list
         csv_file: path to file
         columns: list of columns names that needs to be present in csv file header
         """
-        with open(self.csv_path, mode="rt") as csv_file:
-            f_reader = reader(csv_file)
-            headers_csv = list(next(f_reader))
-            for col in list(self.headers.values()):
-                if col not in headers_csv:
-                    raise ValueError("Wrong csv headers. No {} column.".format(col))
+        f_reader = copy.copy(reader(csv_file))
+        headers_csv = list(next(f_reader))
+        for col in list(self.headers.values()):
+            if col not in headers_csv:
+                raise ValueError("Wrong csv headers. No {} column.".format(col))
 
-    def get_df(self):
+    @property
+    def df(self):
+        return self._df
+
+    def create_df(self):
         """
         Generates dataframe from csv file provided as attribute of object
         :return: pandas dataframe with data from csv file
         """
-        df = pd.read_csv(self.csv_path)
+        df = pd.read_csv(self.csv_file)
         df = df[df.columns.intersection(list(self.headers.values()))]
         return df
 
@@ -47,9 +55,10 @@ class VelocityCMJAttribute(CMJAttribute):
     Velocity characteristic of counter movement jump.
     Inherits from CMJAttribute
     """
+
     def __init__(self, csv_path, headers):
         super().__init__(csv_path, headers)
-        self.df_vel = super().get_df()
+        self.df_vel = super().df
         self.df_pos_vel = self._get_pos_vel_df()
 
     def _get_pos_vel_df(self):
@@ -148,7 +157,7 @@ class CMJForceVelStats:
         """
         self.vel_attr = vel_attr
         self.force_attr = force_attr
-        self.df_base = pd.merge(vel_attr.get_df(), force_attr.get_df(), how="inner", on=join_on)
+        self.df_base = pd.merge(vel_attr.df, force_attr.df, how="inner", on=join_on)
         self.g = 9.81
         self.system_weight = self.get_system_weight(self.df_base, force_attr.headers["combined"])
 
@@ -289,14 +298,15 @@ class CMJForceVelStats:
 
 
 if __name__ == "__main__":
-    path = r"/data"
-    cmj_vel_attr = CMJAttribute(rf"{path}\adam\velocity.csv",
-                                {"time": "Time (s)", "velocity": "Velocity (M/s)"})
-    cmj_force_attr = CMJAttribute(rf"{path}\adam\force.csv",
-                            {"time": "Time (s)", "left": "Left (N)", "right": "Right (N)", "combined": "Combined (N)"})
+    path = r"D:\DevProjects\PythonProjects\CMJ-statistics\cmjstats\data"
+    with open(rf"{path}\velocity\Velocity-Adam_Lewandowski_Countermovement_Jump-10_14_2020_07-00-26 2.csv") as csv_file:
+        cmj_vel_attr = CMJAttribute(csv_file, {"time": "Time (s)", "velocity": "Velocity (M/s)"})
+    with open(rf"{path}\force\Force-Adam_Lewandowski_Countermovement_Jump-10_14_2020_07-00-26 2.csv") as csv_file:
+        cmj_force_attr = CMJAttribute(csv_file, {"time": "Time (s)", "left": "Left (N)", "right": "Right (N)",
+                                                 "combined": "Combined (N)"})
     cmj = CMJForceVelStats(cmj_vel_attr, cmj_force_attr, "Time (s)")
     print("Adam: ")
-    cmj.get_cmj_stats()
+    stats = cmj.get_cmj_stats()
     print("\n\n")
 
     cmj_vel_attr = CMJAttribute(rf"{path}\robin\velocity.csv",
@@ -307,5 +317,3 @@ if __name__ == "__main__":
     cmj = CMJForceVelStats(cmj_vel_attr, cmj_force_attr, "Time (s)")
     print("Robin: ")
     cmj.get_cmj_stats()
-
-

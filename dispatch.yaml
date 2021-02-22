@@ -1,0 +1,3 @@
+dispatch:
+  - url: "cmj-stats.ey.r.appspot.com/"
+    service: default

@@ -1,0 +1,11 @@
+/.ipnyb_checkpoints
+additional
+blob
+data
+data_old
+src
+venv
+/.gitignore
+/.diagram.vsdx
+/.Untitled.ipynb
+/wsgi.py

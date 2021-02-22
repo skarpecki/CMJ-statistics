@@ -33,6 +33,7 @@ body {
 
 .upload-files-column {
     flex: 1;
+    width: 30px;
 }
 
 .upload-files-label {

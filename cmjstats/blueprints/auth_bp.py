@@ -2,14 +2,27 @@ from flask import (Blueprint, current_app, request,
                    session, flash, url_for, redirect, render_template,
                    g)
 from functools import wraps
+from passlib.hash import bcrypt
+from google.cloud import logging
+
+from service.logging import log_message
 
 bp = Blueprint('auth', __name__, url_prefix="/")
 
 
 def check_credentials(app, username, password):
+    if app.config['ENV'] == 'GCLOUD':
+        message = ("username in config: {} \n"
+                   "password in config: {} \n"
+                   "username provided: {} \n"
+                   "password provided: {}\n".format(
+            app.config['USERNAME'], app.config['PASSWORD'],
+            username, password))
+        log_message(message)
+
     if username != app.config['USERNAME']:
         return False
-    elif password != app.config['PASSWORD']:
+    elif not bcrypt.verify(password, app.config['PASSWORD']):
         return False
     return True
 
@@ -21,6 +34,7 @@ def require_auth(func):
             return func(*args, **kwargs)
         else:
             return redirect(url_for('auth.login'))
+
     return wrapper
 
 
@@ -47,5 +61,3 @@ def load_user():
         g.user = None
     else:
         g.user = username
-
-
