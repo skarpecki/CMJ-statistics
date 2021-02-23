@@ -50,100 +50,23 @@ class CMJAttribute:
         return df
 
 
+class ForceCMJAttribute(CMJAttribute):
+
+    def __init__(self, csv_path, headers={"time": "Time (s)", "left": "Left (N)", "right": "Right (N)",
+                                          "combined": "Combined (N)"}):
+        super().__init__(csv_path, headers)
+
+
 class VelocityCMJAttribute(CMJAttribute):
     """
     Velocity characteristic of counter movement jump.
     Inherits from CMJAttribute
     """
 
-    def __init__(self, csv_path, headers):
+    def __init__(self, csv_path, headers={"time": "Time (s)", "velocity": "Velocity (M/s)"}):
         super().__init__(csv_path, headers)
-        self.df_vel = super().df
-        self.df_pos_vel = self._get_pos_vel_df()
 
-    def _get_pos_vel_df(self):
-        """
-        Finds positive velocity dataframe from base dataframe provided to object
-        :return: pandas dataframe with data from positive velocity
-        """
-        pos_vel_idx = -1
-        neg_vel_idx = -1
-        for index, row in self.df_vel.iterrows():
-            # setting index to 0 and then identifying positive velocity to avoid
-            # negative velocity which is effect of noise
-            if pos_vel_idx == -1 and row[self.headers['velocity']] < 0:
-                pos_vel_idx = 0
-            if pos_vel_idx == 0 and row[self.headers['velocity']] > 0:
-                pos_vel_idx = index
-                neg_vel_idx = 0
-            # find first negative velocity index after positive velocity
-            if neg_vel_idx == 0 and row[self.headers['velocity']] < 0:
-                neg_vel_idx = index
-                break
-        df_pos_vel = self.df_vel.iloc[pos_vel_idx: neg_vel_idx]
-        df_pos_vel.reset_index(drop=True)
-        return df_pos_vel
 
-    def get_pos_vel_stamp(self, stamp):
-        """
-
-        :param stamp: timestamp for which dataframe is to be created
-        :return: pandas dataframe from first positive velocity index until timestamp provided in arg
-        """
-        return self.df_pos_vel.iloc[:stamp]
-
-    @staticmethod
-    def create_pos_vel_excel(df_pos_val, stamp, path):
-        """
-
-        :param stamp: stamp for which excel should be created
-        :param df_pos_val: dataframe containing positive velocity values
-        :param path: path where workbook should be created
-
-        :return:
-        """
-        stats = df_pos_val.describe()[["Velocity (M/s)", "Acceleration (M/s^2)"]].loc[['mean', 'min', 'max']]
-        writer = pd.ExcelWriter(f"{path}\\{stamp}.xlsx", engine='xlsxwriter')
-        df_pos_val.to_excel(writer, sheet_name=f"{stamp}_data")
-        stats.to_excel(writer, sheet_name=f"{stamp}_stat")
-        # df.to_excel(writer, sheet_name=f"source")
-
-        workbook = writer.book
-        worksheet = writer.sheets[f"{stamp}_data"]
-
-        chart = workbook.add_chart({'type': 'scatter',
-                                    'subtype': 'smooth'})
-        chart.add_series({
-            'name': 'v(t)',
-            'categories': f'={stamp}_data!$B$2:$B$101',
-            'values': f'={stamp}_data!$C$2:$C$101',
-        })
-
-        chart.add_series({
-            'name': 'a(t)',
-            'categories': f'={stamp}_data!$B$2:$B$101',
-            'values': f'={stamp}_data!$D$2:$D$101',
-            'y2_axis': 1,
-        })
-
-        chart.set_title({'name': 'CMJ'})
-        chart.set_x_axis({'name': 'Time (s)'})
-        chart.set_y_axis({'name': 'Velocity (m/s)'})
-        chart.set_y2_axis({'name': "Acceleration (m/s^2)"})
-        chart.set_size({'x_scale': 2, 'y_scale': 1.5})
-        worksheet.insert_chart('H2', chart)
-
-        writer.sheets[f"{stamp}_data"].set_column(1, 1, 10)
-        writer.sheets[f"{stamp}_data"].set_column(2, 2, 15)
-        writer.sheets[f"{stamp}_data"].set_column(3, 3, 20)
-
-        writer.sheets[f"{stamp}_stat"].set_column(1, 1, 15)
-        writer.sheets[f"{stamp}_stat"].set_column(2, 2, 20)
-
-        # writer.sheets['source'].set_column(1, 1, 10)
-        # writer.sheets['source'].set_column(2, 2, 15)
-
-        writer.close()
 
 
 class CMJForceVelStats:
@@ -298,16 +221,15 @@ class CMJForceVelStats:
 
 
 if __name__ == "__main__":
-    path = r"D:\DevProjects\PythonProjects\CMJ-statistics\cmjstats\data"
-    with open(rf"{path}\velocity\Velocity-Adam_Lewandowski_Countermovement_Jump-10_14_2020_07-00-26 2.csv") as csv_file:
-        cmj_vel_attr = CMJAttribute(csv_file, {"time": "Time (s)", "velocity": "Velocity (M/s)"})
-    with open(rf"{path}\force\Force-Adam_Lewandowski_Countermovement_Jump-10_14_2020_07-00-26 2.csv") as csv_file:
-        cmj_force_attr = CMJAttribute(csv_file, {"time": "Time (s)", "left": "Left (N)", "right": "Right (N)",
-                                                 "combined": "Combined (N)"})
+    path = r"D:\DevProjects\PythonProjects\CMJ-statistics\data"
+    with open(rf"{path}\velocity\Adam_Lewandowski-10_14_2020.csv") as csv_file:
+        cmj_vel_attr = VelocityCMJAttribute(csv_file)
+    with open(rf"{path}\force\Adam_Lewandowski-10_14_2020.csv") as csv_file:
+        cmj_force_attr = ForceCMJAttribute(csv_file)
     cmj = CMJForceVelStats(cmj_vel_attr, cmj_force_attr, "Time (s)")
     print("Adam: ")
     stats = cmj.get_cmj_stats()
-    print("\n\n")
+    print(stats)
 
     cmj_vel_attr = CMJAttribute(rf"{path}\robin\velocity.csv",
                                 {"time": "Time (s)", "velocity": "Velocity (M/s)"})
