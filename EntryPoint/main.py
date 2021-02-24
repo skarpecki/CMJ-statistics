@@ -1,9 +1,12 @@
 import os
 import sys
 from flask import Flask
+import traceback
+
+
 # from werkzeug.utils import secure_filename
 from blueprints import auth_bp
-from blueprints import stats_bp
+from blueprints import upload_bp
 
 app = Flask(__name__)
 
@@ -13,32 +16,37 @@ def check_extension(filename):
 
 
 # def create_app(test_config=None):
-app.config.from_object('EntryPoint.default_settings.DevelopmentConfig')
+
 
 try:
-    if os.environ.get("ENV") == 'GCLOUD':
-        app.config["USERNAME"] = os.environ.get("USERNAME")
-        app.config["PASSWORD"] = os.environ.get("PASSWORD")
-        app.config["UPLOAD_FOLDER"] = os.environ.get("BUCKET")
-        app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
-
+    if os.environ["ENV"] == 'GCLOUD':
+            app.config["USERNAME"] = os.environ["USERNAME"]
+            app.config["PASSWORD"] = os.environ["PASSWORD"]
+            app.config["UPLOAD_FOLDER"] = os.environ["BUCKET"]
+            app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
+            app.config["CMJ_COMP_URL"] = os.environ["CMJ_COMP_URL"]
     else:
-        if os.environ.get("ENV") == "LOCAL":
-            app.config.from_envvar('CMJ_SETTINGS')
-            print("Settings from path loaded")
-        os.makedirs(app.config.get('UPLOAD_FOLDER'), exist_ok=True)
-        os.makedirs(r"{}\{}".format(app.config.get('UPLOAD_FOLDER'), "velocity"), exist_ok=True)
-        os.makedirs(r"{}\{}".format(app.config.get('UPLOAD_FOLDER'), "force"), exist_ok=True)
+        if os.environ["ENV"] == "LOCAL":
+                app.config.from_envvar('CMJ_SETTINGS')
+                app.config["CMJ_COMP_URL"] = os.environ["CMJ_COMP_URL"]
+                print("Settings from path loaded")
+        elif os.environ["ENV"] == "DEFAULT":
+            app.config.from_object('EntryPoint.default_settings.DevelopmentConfig')
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(r"{}\{}".format(app.config['UPLOAD_FOLDER'], "velocity"), exist_ok=True)
+    os.makedirs(r"{}\{}".format(app.config['UPLOAD_FOLDER'], "force"), exist_ok=True)
 except TypeError:
-    print("No ENV variable provided - aborting program")
+    traceback.print_exc()
     sys.exit(2)
+
+
 try:
     os.makedirs(app.instance_path)
 except OSError:
     pass
 
 app.register_blueprint(auth_bp.bp, prefix='/')
-app.register_blueprint(stats_bp.bp)
+app.register_blueprint(upload_bp.bp)
 
 
 @app.errorhandler(500)

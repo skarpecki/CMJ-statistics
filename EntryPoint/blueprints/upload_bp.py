@@ -2,9 +2,10 @@ from flask import Blueprint, current_app, request, redirect, url_for, render_tem
 from werkzeug.utils import secure_filename
 import os
 from google.cloud import storage
+import requests
+import json
 
-from service.csv_parser import check_extension, parse_cmj_csv_name, sort_list
-import service.cmj_stats as cmj_stats
+from service.csv_name_parser import check_extension, parse_cmj_csv_name, sort_list
 from blueprints.auth_bp import require_auth
 from service.logging import log_message
 
@@ -12,13 +13,24 @@ bp = Blueprint('upload', __name__, url_prefix='/upload')
 
 
 def upload_locally(force_files, velocity_files):
+    """
+    :param force_files: list of force fiels
+    :param velocity_files: list of velocity files
+    :return: dict of (filenames, path to force files, path to velocity files)
+    """
     filenames = []
+    force_path = os.path.abspath(current_app.config['UPLOAD_FOLDER'] + r"\force")
+    velocity_path = os.path.abspath(current_app.config['UPLOAD_FOLDER'] + r"\velocity")
     for file in force_files:
-        file.save(os.path.join(current_app.config['UPLOAD_FOLDER'] + r"\force", file.filename))
-        filenames.append(file.filename)
+        path = os.path.join(force_path, file.filename)
+        file.save(path)
     for file in velocity_files:
-        file.save(os.path.join(current_app.config['UPLOAD_FOLDER'] + r"\velocity", file.filename))
-    return filenames
+        path = os.path.join(velocity_path, file.filename)
+        file.save(path)
+        filenames.append(file.filename)
+    return {"filenames": filenames,
+            "force": force_path,
+            "velocity": velocity_path}
 
 
 def remove_locally(filenames):
@@ -69,29 +81,24 @@ def upload_files():
             if file and check_extension(file.filename):
                 file.filename = secure_filename(file.filename)
                 file.filename = parse_cmj_csv_name(file.filename)
-                filenames.append(file.filename)
-                force_files_dict[file.filename] = file
             else:
                 return redirect(request.url)
         for file in velocity_files:
             if file and check_extension(file.filename):
                 file.filename = secure_filename(file.filename)
                 file.filename = parse_cmj_csv_name(file.filename)
-                velocity_files_dict[file.filename] = file
             else:
                 redirect(request.url)
         filenames = sort_list(filenames)
 
-        force_headers = {"time": "Time (s)", "left": "Left (N)", "right": "Right (N)",
-                         "combined": "Combined (N)"}
-        velocity_headers = {"time": "Time (s)", "velocity": "Velocity (M/s)"}
-        for filename in filenames:
-            cmj_force_attr = cmj_stats.CMJAttribute(force_files_dict[filename], force_headers)
-            cmj_vel_attr = cmj_stats.CMJAttribute(velocity_files_dict[filename], velocity_headers)
-            cmj = cmj_stats.CMJForceVelStats(cmj_vel_attr, cmj_force_attr, "Time (s)")
-            dict_cmj = cmj.get_cmj_stats()
-            dict_athletes[filename.split('.')[0]] = dict_cmj
+        data = upload_locally(force_files, velocity_files)
+        data = json.dumps(data)
+        url = current_app.config["CMJ_COMP_URL"]
+        # TODO: add some secret key to header so each request is verified by computations endpoint
+        headers = {'Content-Type': 'application/json'}
+        response = requests.request("POST", url, headers=headers, data=data)
+        print(response.text)
 
-        return render_template("show_stats.html", dict_athletes=dict_athletes)
+        return render_template("upload-page.html")
 
     return render_template("upload-page.html")
