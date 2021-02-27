@@ -1,9 +1,6 @@
 import pandas as pd
 from csv import reader
-from functools import partial, reduce
-from itertools import tee
 import copy
-import shutil
 
 
 class CMJAttribute:
@@ -65,8 +62,6 @@ class VelocityCMJAttribute(CMJAttribute):
 
     def __init__(self, csv_path, headers={"time": "Time (s)", "velocity": "Velocity (M/s)"}):
         super().__init__(csv_path, headers)
-
-
 
 
 class CMJForceVelStats:

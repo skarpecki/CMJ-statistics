@@ -3,9 +3,7 @@ from flask import (Blueprint, current_app, request,
                    g)
 from functools import wraps
 from passlib.hash import bcrypt
-from google.cloud import logging
-
-from service.logging import log_message
+from service.cloud_logging import log_message
 
 bp = Blueprint('auth', __name__, url_prefix="/")
 

@@ -1,0 +1,4 @@
+pandas~=1.1.4
+Flask~=1.1.2
+google-cloud-storage
+google-cloud-logging

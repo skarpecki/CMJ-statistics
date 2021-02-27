@@ -1,10 +1,5 @@
 runtime: python39
-service: default
-handlers:
-  - url: /static
-    static_dir: static
-
-
+service: entry-point
 
 default_expiration: "5m"
 env_variables:
@@ -13,3 +8,4 @@ env_variables:
   USERNAME: 'NGP'
   PASSWORD: '$2b$12$0diwFWRaGE59uTEguOf64erwBClGUZ8Wz8ddkeK2yHmeYl6Gtwvxq'
   SECRET_KEY: '\x98\x85\x1fp_\xab\x17\xdd\x11\xb7'
+  CMJ_COMP_URL: 'https://cmj-stats-compute-dot-cmj-stats.ey.r.appspot.com/cmj/compute'

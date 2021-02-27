@@ -7,6 +7,8 @@ import traceback
 # from werkzeug.utils import secure_filename
 from blueprints import auth_bp
 from blueprints import upload_bp
+from service.cloud_logging import log_message
+
 
 app = Flask(__name__)
 
@@ -19,12 +21,13 @@ def check_extension(filename):
 
 
 try:
+    app.config["ENV"] = os.environ["ENV"]
     if os.environ["ENV"] == 'GCLOUD':
-            app.config["USERNAME"] = os.environ["USERNAME"]
-            app.config["PASSWORD"] = os.environ["PASSWORD"]
-            app.config["UPLOAD_FOLDER"] = os.environ["BUCKET"]
-            app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
-            app.config["CMJ_COMP_URL"] = os.environ["CMJ_COMP_URL"]
+        app.config["USERNAME"] = os.environ["USERNAME"]
+        app.config["PASSWORD"] = os.environ["PASSWORD"]
+        app.config["UPLOAD_FOLDER"] = os.environ["BUCKET"]
+        app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
+        app.config["CMJ_COMP_URL"] = os.environ["CMJ_COMP_URL"]
     else:
         if os.environ["ENV"] == "LOCAL":
                 app.config.from_envvar('CMJ_SETTINGS')
@@ -32,11 +35,11 @@ try:
                 print("Settings from path loaded")
         elif os.environ["ENV"] == "DEFAULT":
             app.config.from_object('EntryPoint.default_settings.DevelopmentConfig')
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    os.makedirs(r"{}\{}".format(app.config['UPLOAD_FOLDER'], "velocity"), exist_ok=True)
-    os.makedirs(r"{}\{}".format(app.config['UPLOAD_FOLDER'], "force"), exist_ok=True)
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        os.makedirs(r"{}\{}".format(app.config['UPLOAD_FOLDER'], "velocity"), exist_ok=True)
+        os.makedirs(r"{}\{}".format(app.config['UPLOAD_FOLDER'], "force"), exist_ok=True)
 except TypeError:
-    traceback.print_exc()
+    log_message(traceback.extract_stack())
     sys.exit(2)
 
 
