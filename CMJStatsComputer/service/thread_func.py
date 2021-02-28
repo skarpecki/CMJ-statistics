@@ -31,11 +31,13 @@ def thread_func_gcloud(filenames: list):
             storage_client.download_blob_to_file(blob, tf)
             tf.seek(0)
             cmj_force_attr = ForceCMJAttribute(tf)
+        blob.delete()
         blob = bucket.blob(r"velocity/{}".format(filename))
         with tempfile.TemporaryFile() as tf:
             storage_client.download_blob_to_file(blob, tf)
             tf.seek(0)
             cmj_vel_attr = VelocityCMJAttribute(tf)
+        blob.delete()
         blob = bucket.blob(r"stats/{}".format(filename))
         cmj = CMJForceVelStats(cmj_vel_attr, cmj_force_attr, "Time (s)")
         stats = cmj.get_cmj_stats()

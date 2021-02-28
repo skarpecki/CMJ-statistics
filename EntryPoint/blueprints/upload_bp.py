@@ -64,32 +64,56 @@ def upload_gcloud(force_files, velocity_files):
             "velocity": velocity_path}
 
 
+def verify_files(force_files, velocity_files):
+    force_filenames = {}
+    velocity_filenames = {}
+    if len(velocity_files) != len(force_files):
+        raise ValueError("Different number of velocity files and force_files")
+    if len(velocity_files) == 0 or len(force_files) == 0:
+        raise ValueError("No velocity or force files provided")
+
+    for file in force_files:
+        if file and check_extension(file.filename):
+            file.filename = secure_filename(file.filename)
+            file.filename = parse_cmj_csv_name(file.filename)
+            if file.filename not in force_filenames.keys():
+                force_filenames[file.filename] = 1
+            else:
+                force_filenames[file.filename] += 1
+        else:
+            raise ValueError("One of force files is incorrect")
+
+    for file in velocity_files:
+        if file and check_extension(file.filename):
+            file.filename = secure_filename(file.filename)
+            file.filename = parse_cmj_csv_name(file.filename)
+            if file.filename not in velocity_filenames.keys():
+                velocity_filenames[file.filename] = 1
+            else:
+                velocity_filenames[file.filename] += 1
+        else:
+            raise ValueError("One of velocity files is incorrect")
+
+    log_message("Force: {}".format(str(force_filenames)))
+    log_message("Velocity: {}".format(str(velocity_filenames)))
+
+    if force_filenames != velocity_filenames:
+        raise ValueError("Different velocity and force files provided")
+
+    return force_files, velocity_files
+
+
 @bp.route("/", methods=('GET', 'POST'))
 @require_auth
 def upload_files():
     if request.method == 'POST':
-        velocity_files = request.files.getlist("velocity[]")
         force_files = request.files.getlist("force[]")
-        filenames = []
-
-        if len(velocity_files) != len(force_files):
+        velocity_files = request.files.getlist("velocity[]")
+        try:
+            force_files, velocity_files = verify_files(force_files, velocity_files)
+        except ValueError:
             return redirect(request.url)
-        if len(velocity_files) == 0 or len(force_files) == 0:
-            return redirect(request.url)
 
-        for file in force_files:
-            if file and check_extension(file.filename):
-                file.filename = secure_filename(file.filename)
-                file.filename = parse_cmj_csv_name(file.filename)
-            else:
-                return redirect(request.url)
-        for file in velocity_files:
-            if file and check_extension(file.filename):
-                file.filename = secure_filename(file.filename)
-                file.filename = parse_cmj_csv_name(file.filename)
-            else:
-                redirect(request.url)
-        filenames = sort_list(filenames)
         if current_app.config["ENV"] == "LOCAL" or current_app.config["ENV"] == "DEFAULT":
             data = upload_locally(force_files, velocity_files)
         elif current_app.config["ENV"] == "GCLOUD":
