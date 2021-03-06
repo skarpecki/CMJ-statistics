@@ -28,6 +28,9 @@ try:
         app.config["UPLOAD_FOLDER"] = os.environ["BUCKET"]
         app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
         app.config["CMJ_COMP_URL"] = os.environ["CMJ_COMP_URL"]
+        app.config["PROJECT_ID"] = os.environ["PROJECT_ID"]
+        app.config["QUEUE_ID"] = os.environ["QUEUE_ID"]
+        app.config["QUEUE_LOCATION"] = os.environ["QUEUE_LOCATION"]
     else:
         if os.environ["ENV"] == "LOCAL":
                 app.config.from_envvar('CMJ_SETTINGS')

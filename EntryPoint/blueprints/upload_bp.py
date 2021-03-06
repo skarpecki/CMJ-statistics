@@ -23,20 +23,23 @@ def upload_gcloud(force_files: CmjCsvFilesList, velocity_files: CmjCsvFilesList)
 
     now = datetime.datetime.now()
     now = "{}{}{}{}".format(now.hour, now.minute, now.second, now.microsecond)
-    force_path = current_app.config['UPLOAD_FOLDER'] + r"force/{}/".format(now)
-    velocity_path = current_app.config['UPLOAD_FOLDER'] + r"velocity/{}/".format(now)
+
+    force_subdir = r"force/{}/".format(now)
+    velocity_subdir = r"velocity/{}/".format(now)
+    force_path = current_app.config['UPLOAD_FOLDER'] + force_subdir
+    velocity_path = current_app.config['UPLOAD_FOLDER'] + velocity_subdir
 
     for csv_file in force_files.files_list:
-        blob = bucket.blob(force_path + csv_file.csv_filename.filename)
+        blob = bucket.blob(force_subdir + csv_file.csv_filename.filename)
         blob.upload_from_file(csv_file.file)
 
     for csv_file in velocity_files.files_list:
-        blob = bucket.blob(velocity_path + csv_file.csv_filename.filename)
+        blob = bucket.blob(velocity_subdir + csv_file.csv_filename.filename)
         blob.upload_from_file(csv_file.file)
 
     return {"filenames": velocity_files.filenames,
-            "force_path": force_path,
-            "velocity_path": velocity_path}
+            "force_path": force_subdir,
+            "velocity_path": velocity_subdir}
 
 
 def verify_files(force_files: CmjCsvFilesList, velocity_files: CmjCsvFilesList):
@@ -84,9 +87,9 @@ def upload_files():
         # TODO: add some secret key to header so each request is verified by computations endpoint
 
         client = tasks_v2.CloudTasksClient()
-        project = 'athletes-dashboard-306517'
-        queue = 'athletes-dashboard'
-        location = "europe-west1"
+        project = current_app.config["PROJECT_ID"]
+        queue = current_app.config["QUEUE_ID"]
+        location = current_app.config["QUEUE_LOCATION"]
         parent = client.queue_path(project, location, queue)
         # str(datetime.utcnow()) return string with illegal characters for task's name like "-", ".", ":" etc.
         # (e.g '2021-02-27 17:01:23.864414'), hence following instructions removes those chars

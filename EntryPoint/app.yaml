@@ -9,3 +9,6 @@ env_variables:
   PASSWORD: '$2b$12$0diwFWRaGE59uTEguOf64erwBClGUZ8Wz8ddkeK2yHmeYl6Gtwvxq'
   SECRET_KEY: '\x98\x85\x1fp_\xab\x17\xdd\x11\xb7'
   CMJ_COMP_URL: 'https://cmj-stats-dot-athletes-dashboard-306517.ew.r.appspot.com/'
+  PROJECT_ID: 'athletes-dashboard-306517'
+  QUEUE_ID: 'athletes-dashboard'
+  QUEUE_LOCATION: 'europe-west1'
