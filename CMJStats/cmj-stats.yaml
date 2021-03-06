@@ -1,8 +1,8 @@
 runtime: python39
-service: cmj-stats-compute
+service: cmj-stats
 
 default_expiration: "5m"
 env_variables:
   ENV: 'GCLOUD'
-  BUCKET: 'cmj-stats.appspot.com'
+  BUCKET: 'athletes-dashboard-306517.appspot.com'
 

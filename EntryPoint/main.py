@@ -1,6 +1,6 @@
 import os
 import sys
-from flask import Flask
+from flask import Flask, render_template
 import traceback
 
 
@@ -50,6 +50,11 @@ except OSError:
 
 app.register_blueprint(auth_bp.bp, prefix='/')
 app.register_blueprint(upload_bp.bp)
+
+
+@app.route("/index")
+def index():
+    return render_template('index.html')
 
 
 @app.errorhandler(500)

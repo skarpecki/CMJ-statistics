@@ -1,11 +1,11 @@
 runtime: python39
-service: entry-point
+service: default
 
 default_expiration: "5m"
 env_variables:
   ENV: 'GCLOUD'
-  BUCKET: 'cmj-stats.appspot.com'
+  BUCKET: 'athletes-dashboard-306517.appspot.com'
   USERNAME: 'NGP'
   PASSWORD: '$2b$12$0diwFWRaGE59uTEguOf64erwBClGUZ8Wz8ddkeK2yHmeYl6Gtwvxq'
   SECRET_KEY: '\x98\x85\x1fp_\xab\x17\xdd\x11\xb7'
-  CMJ_COMP_URL: 'https://cmj-stats-compute-dot-cmj-stats.ey.r.appspot.com/cmj/compute'
+  CMJ_COMP_URL: 'https://cmj-stats-dot-athletes-dashboard-306517.ew.r.appspot.com/'
