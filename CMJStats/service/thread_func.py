@@ -6,10 +6,10 @@ import tempfile
 from service.cloud_logging import log_message
 
 
-def thread_func_local(filenames: list, vel_file_path: str, force_file_path: str):
+def thread_func_local(filenames: list, vel_files_path: str, force_files_path: str):
     for filename in filenames:
-        vel_path = r"{}\{}".format(vel_file_path, filename)
-        force_path = r"{}\{}".format(force_file_path, filename)
+        vel_path = r"{}\{}".format(vel_files_path, filename)
+        force_path = r"{}\{}".format(force_files_path, filename)
         with open(vel_path) as vel_csv_file:
             cmj_vel_attr = VelocityCMJAttribute(vel_csv_file)
         with open(force_path) as force_csv_file:
@@ -21,18 +21,18 @@ def thread_func_local(filenames: list, vel_file_path: str, force_file_path: str)
         os.remove(force_path)
 
 
-def thread_func_gcloud(filenames: list):
+def thread_func_gcloud(filenames: list[str], force_path: str, velocity_path: str):
     log_message("thread func")
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(current_app.config["UPLOAD_FOLDER"])
     for filename in filenames:
-        blob = storage.Blob("force/{}".format(filename), bucket)
+        blob = storage.Blob("{}{}".format(force_path, filename), bucket)
         with tempfile.TemporaryFile() as tf:
             storage_client.download_blob_to_file(blob, tf)
             tf.seek(0)
             cmj_force_attr = ForceCMJAttribute(tf)
         blob.delete()
-        blob = bucket.blob(r"velocity/{}".format(filename))
+        blob = bucket.blob(r"{}{}".format(velocity_path, filename))
         with tempfile.TemporaryFile() as tf:
             storage_client.download_blob_to_file(blob, tf)
             tf.seek(0)

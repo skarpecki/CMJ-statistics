@@ -57,10 +57,10 @@ class CmjCsvFile:
         self.file = _file
         # file from request hence using filename
         if getattr(self.file, "filename", None) is not None:
-            self.filename = CmjCsvName(getattr(self.file, "filename"))
+            self.csv_filename = CmjCsvName(getattr(self.file, "filename"))
         # file like object hence using name
         elif getattr(self.file, "name", None) is not None:
-            self.filename = CmjCsvName(getattr(self.file, "name"))
+            self.csv_filename = CmjCsvName(getattr(self.file, "name"))
         else:
             raise TypeError("Wrong file type")
 
@@ -78,12 +78,12 @@ class CmjCsvFilesList:
             for _file in files_list:
                 csv_file = CmjCsvFile(_file)
                 self.files_list.append(csv_file)
-                self.filenames.append(csv_file.filename)
+                self.filenames.append(csv_file.csv_filename.filename)
 
     def append(self, _file):
         csv_file = CmjCsvFile(_file)
         self.files_list.append(csv_file)
-        self.filenames.append(csv_file.filename)
+        self.filenames.append(csv_file.csv_filename.filename)
 
     def sort_list(self):
         athletes = self.files_list
@@ -93,15 +93,15 @@ class CmjCsvFilesList:
                 temp1 = athletes[j]
                 temp2 = athletes[j + 1]
 
-                if temp1.filename.lastname > temp2.filename.lastname:
+                if temp1.csv_filename.lastname > temp2.csv_filename.lastname:
                     athletes[j], athletes[j + 1] = athletes[j + 1], athletes[j]
 
         for i in range(n):
             for j in range(n - 1 - i):
                 temp1 = athletes[j]
                 temp2 = athletes[j + 1]
-                if temp1.filename.lastname == temp2.filename.lastname \
-                        and temp1.filename.firstname > temp2.filename.firstname:
+                if temp1.csv_filename.lastname == temp2.csv_filename.lastname \
+                        and temp1.csv_filename.firstname > temp2.csv_filename.firstname:
                     athletes[j], athletes[j + 1] = athletes[j + 1], athletes[j]
 
         for i in range(n):
@@ -109,9 +109,9 @@ class CmjCsvFilesList:
                 temp1 = athletes[j]
                 temp2 = athletes[j + 1]
 
-                if temp1.filename.lastname == temp2.filename.lastname \
-                        and temp1.filename.firstname == temp2.filename.firstname \
-                        and temp1.filename.date > temp2.filename.date:
+                if temp1.csv_filename.lastname == temp2.csv_filename.lastname \
+                        and temp1.csv_filename.firstname == temp2.csv_filename.firstname \
+                        and temp1.csv_filename.date > temp2.csv_filename.date:
                     athletes[j], athletes[j + 1] = athletes[j + 1], athletes[j]
         self.files_list = athletes
 
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     cmj_list = CmjCsvFilesList(athletess)
     cmj_list.sort_list()
     for file in cmj_list.files_list:
-        s = file.filename
+        s = file.csv_filename
         print(s)
     print(cmj_list.get_len())
 
@@ -145,4 +145,4 @@ if __name__ == "__main__":
             r"C:\Users\Szymon\Desktop\data\force\Force-Adam_Lewandowski_Countermovement_Jump-10_14_2020_07-00-26 2.csv") as file:
         cmj_file = CmjCsvFile(file)
         print()
-        print(cmj_file.filename)
+        print(cmj_file.csv_filename)

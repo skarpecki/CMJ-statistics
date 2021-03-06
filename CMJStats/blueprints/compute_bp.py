@@ -18,6 +18,6 @@ def compute():
     # thread.start()
     # thread.join()
 
-    thread_func_gcloud(athletes_files["filenames"])
+    thread_func_gcloud(athletes_files["filenames"], athletes_files["force_path"], athletes_files["velocity_path"])
     return "done"
 
