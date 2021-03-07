@@ -43,8 +43,8 @@ def verify_files(force_files: CmjCsvFilesList, velocity_files: CmjCsvFilesList):
     force_files = CmjCsvFilesList(force_files)
     velocity_files = CmjCsvFilesList(velocity_files)
 
-    force_files.sort_list()
-    velocity_files.sort_list()
+    # force_files.sort_list()
+    # velocity_files.sort_list()
 
     if len(velocity_files.files_list) != len(force_files.files_list):
         raise ValueError("Different number of velocity files and force_files")
