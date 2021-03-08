@@ -41,13 +41,18 @@ class Athlete:
             return year_diff - 1
 
     def get_datastore_dict(self):
-        return {
+        athlete_dict = {
             "first_name": self.first_name,
             "last_name": self.last_name,
             "coaches": self.coaches,
-            "birthdate": self.birthdate.strftime(self.birthdate_format),
-            "sport": self.sport
+            "sport": getattr(self, "sport", None)
         }
+        birthdate = getattr(self, "birthdate")
+        if birthdate is not None:
+            athlete_dict["birthdate"] = birthdate.strftime(self.birthdate_format)
+        else:
+            athlete_dict["birthdate"] = None
+        return athlete_dict
 
     @classmethod
     def create_from_entity(cls, entity: Entity):
@@ -56,10 +61,8 @@ class Athlete:
             last_name=entity["last_name"],
             coaches=entity["coaches"],
             # following are optional kwargs, hence using get which doesn't raise KeyError
-            birthdate=datetime.datetime.strptime(entity.get("birthdate"), cls.birthdate_format).date(),
+            birthdate=datetime.datetime.strptime(entity.get("birthdate"), cls.birthdate_format).date() if \
+                entity.get("birthdate") is not None else None,
             sport=entity.get("sport")
         )
         return athlete
-
-
-

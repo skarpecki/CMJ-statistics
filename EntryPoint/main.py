@@ -48,13 +48,14 @@ try:
 except OSError:
     pass
 
-app.register_blueprint(auth_bp.bp, prefix='/')
-app.register_blueprint(upload_bp.bp)
-
 
 @app.route("/index")
 def index():
     return render_template('index.html')
+
+
+app.register_blueprint(auth_bp.bp, prefix='/')
+app.register_blueprint(upload_bp.bp)
 
 
 @app.errorhandler(500)
