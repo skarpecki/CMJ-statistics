@@ -46,7 +46,7 @@ def login():
                              request.form['username'],
                              request.form['password']):
             session['username'] = request.form['username']
-            return redirect(url_for('upload.upload_files'))
+            return redirect(url_for('index'))
         else:
             error = "Invalid username\nor password"
     return render_template('login-page.html', error=error)
