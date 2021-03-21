@@ -1,9 +1,10 @@
 import datetime
 from google.cloud.datastore import Entity
+import json
 
 
 class Athlete:
-    birthdate_format = "%d/%m/%y"
+    birthdate_format = "%Y-%m-%d"
 
     def __init__(self, first_name, last_name, coaches=[], **kwargs):
         self.first_name = first_name
@@ -20,14 +21,7 @@ class Athlete:
 
     @birthdate.setter
     def birthdate(self, birthdate):
-        if birthdate is not None:
-            now = datetime.datetime.now().date()
-            if now.year - birthdate.year >= 100:
-                # constraint to make use of strtime/strptime - it returns same format for e.g 1905 and 2005 (year as 05)
-                raise ValueError("Wrong birthdate - cannot set mor than 100 year ago")
-            self._birthdate = birthdate
-        else:
-            self._birthdate = None
+        self._birthdate = birthdate
 
     @staticmethod
     def calc_age(birthdate):
@@ -44,7 +38,7 @@ class Athlete:
         athlete_dict = {
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "coaches": self.coaches,
+            # "coaches": self.coaches,
             "sport": getattr(self, "sport", None)
         }
         birthdate = getattr(self, "birthdate")
@@ -55,14 +49,14 @@ class Athlete:
         return athlete_dict
 
     @classmethod
-    def create_from_entity(cls, entity: Entity):
+    def create_from_dict(cls, data: dict):
         athlete = Athlete(
-            first_name=entity["first_name"],
-            last_name=entity["last_name"],
-            coaches=entity["coaches"],
+            first_name=data["first_name"],
+            last_name=data["last_name"],
+            # coaches=data.get("coaches") if data.get("coaches") is not None else None,
             # following are optional kwargs, hence using get which doesn't raise KeyError
-            birthdate=datetime.datetime.strptime(entity.get("birthdate"), cls.birthdate_format).date() if \
-                entity.get("birthdate") is not None else None,
-            sport=entity.get("sport")
+            birthdate=datetime.datetime.strptime(data.get("birthdate"), cls.birthdate_format).date() if \
+                data.get("birthdate") is not None else None,
+            sport=data.get("sport") if data.get("sport") is not None else None
         )
         return athlete

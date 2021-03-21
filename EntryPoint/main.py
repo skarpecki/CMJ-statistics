@@ -5,8 +5,7 @@ import traceback
 
 
 # from werkzeug.utils import secure_filename
-from blueprints import auth_bp
-from blueprints import upload_bp
+from blueprints import auth_bp, upload_bp
 from service.cloud_logging import log_message
 
 
@@ -49,13 +48,13 @@ except OSError:
     pass
 
 
-@app.route("/index")
 def index():
     return render_template('index.html')
 
 
-app.register_blueprint(auth_bp.bp, prefix='/')
-app.register_blueprint(upload_bp.bp)
+app.add_url_rule('/index', view_func=index)
+app.register_blueprint(auth_bp.bp, url_prefix='/')
+app.register_blueprint(upload_bp.bp, url_prefix='/upload')
 
 
 @app.errorhandler(500)

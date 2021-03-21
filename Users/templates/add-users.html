@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <link rel="stylesheet" href={{ url_for('static', filename='add-users.css')}}>
+</head>
+<body>
+    <main id="main-body">
+        <h1>Manage athletes</h1>
+        <form id="add-user-form" method="post">
+                <label for="first_name">First name:</label>
+            <input type="text" name="first_name" class="add-user-form-field" required>
+            <label for="last_name">Last name:</label>
+            <input type="text" name="last_name" class="add-user-form-field" required>
+            <label for="birthdate">Birthdate: </label>
+            <input type="date" name="birthdate" class="add-user-form-field">
+            <label for="sport">Sport: </label>
+            <input type="text" name="sport" class="add-user-form-field">
+            <input type="submit" value="Add athlete" id="add-user-form-submit">
+        </form>
+    </main>
+</body>
+</html>

@@ -1,15 +1,16 @@
 from google.cloud import datastore
-from model.Athlete import  Athlete
+from model.Athlete import Athlete
 import datetime
 
 
-def insert_athlete(athlete: Athlete, json_srvc_account=None):
+def insert_athlete(data: dict, json_srvc_account=None):
     if json_srvc_account is not None:
         client = datastore.Client.from_service_account_json(json_srvc_account)
     else:
         client = datastore.Client()
     kind = "Athlete"
     athlete_ent = datastore.Entity(client.key(kind))
+    athlete = Athlete.create_from_dict(data)
     athlete_ent.update(athlete.get_datastore_dict())
     client.put(athlete_ent)
 
@@ -31,13 +32,16 @@ def get_athletes(json_srvc_account=None, **kwargs):
         query.add_filter(key, "=", value)
     athletes = []
     for elem in list(query.fetch()):
-        athletes.append(Athlete.create_from_entity(elem))
+        athletes.append(Athlete.create_from_dict(elem))
     return athletes
 
 
 if __name__ == "__main__":
-    a1 = Athlete("Bartek", "Karpecki", ["kkruczek"], birthdate=datetime.date(1998, 2, 15))
     json_path = r"D:\DevProjects\PythonProjects\CMJ-statistics\Test-Scripts\Athletes Dashboard-e5e75a707f35.json"
-    insert_athlete(a1, json_srvc_account=json_path)
-    for athlete in get_athletes(json_srvc_account=json_path):
-        print(athlete.get_datastore_dict())
+    d1 = {"first_name": "Rosbin",
+          "last_name": "Volkmar",
+          "coaches": ["kkruczek", "pzeromski"]
+          }
+    a2 = Athlete.create_from_dict(d1)
+    print(a2)
+    insert_athlete(d1, json_srvc_account=json_path)
